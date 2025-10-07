@@ -32,6 +32,18 @@ pipeline {
                 }
             }
         }
+         stage('Deploy') {
+            steps {
+                script {
+                    sh '''
+                        docker pull $IMAGE_NAME:$IMAGE_TAG
+                        docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
+                        docker-compose down || true
+                        docker-compose up -d
+                    '''
+                }
+            }
+        }
     }
 
     post {

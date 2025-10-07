@@ -17,6 +17,7 @@ COPY . .
 # Build and publish the app (Release mode)
 RUN dotnet publish Host/Host.csproj -c Release -o /app/publish /p:UseAppHost=false
 
+
 # ================================
 # Stage 2: Runtime image
 # ================================
@@ -25,6 +26,9 @@ WORKDIR /app
 
 # Copy published app from build stage
 COPY --from=build /app/publish .
+
+# Tell Kestrel to listen on all interfaces, port 80
+ENV ASPNETCORE_URLS=http://+:80
 
 # Expose HTTP port
 EXPOSE 80

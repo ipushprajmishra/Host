@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "ipushprajmishra/jenkins-demo"   // Change to your Docker Hub username
+        IMAGE_NAME = "ipushprajmishra/jenkins-demo"
         IMAGE_TAG = "build-${BUILD_NUMBER}"
     }
 
@@ -21,19 +21,25 @@ pipeline {
             }
         }
 
-        stage('List Images') {
+        stage('Push to Docker Hub') {
             steps {
-                sh 'docker images | grep jenkins-demo'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $IMAGE_NAME:$IMAGE_TAG
+                        docker logout
+                    '''
+                }
             }
         }
     }
 
     post {
         success {
-            echo "✅ Build successful: $IMAGE_NAME:$IMAGE_TAG"
+            echo "✅ Image pushed successfully: $IMAGE_NAME:$IMAGE_TAG"
         }
         failure {
-            echo "❌ Build failed!"
+            echo "❌ Pipeline failed"
         }
     }
 }

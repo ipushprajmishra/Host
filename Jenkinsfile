@@ -1,21 +1,39 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "ipushprajmishra/jenkins-demo"   // Change to your Docker Hub username
+        IMAGE_TAG = "build-${BUILD_NUMBER}"
+    }
+
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                echo 'Cloning repository...'
+                checkout scm
             }
         }
-        stage('Build') {
+
+        stage('Build Docker Image') {
             steps {
-                echo 'Building from GitHub source...'
+                script {
+                    sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                }
             }
         }
-        stage('Deploy') {
+
+        stage('List Images') {
             steps {
-                echo 'Deploy complete!'
+                sh 'docker images | grep jenkins-demo'
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Build successful: $IMAGE_NAME:$IMAGE_TAG"
+        }
+        failure {
+            echo "❌ Build failed!"
         }
     }
 }

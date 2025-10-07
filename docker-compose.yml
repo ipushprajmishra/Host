@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  jenkins-demo:
+    image: ipushprajmishra/jenkins-demo:latest
+    container_name: jenkins-demo
+    restart: always
+    ports:
+      - "8081:80"    # map container port 80 → host 8081
